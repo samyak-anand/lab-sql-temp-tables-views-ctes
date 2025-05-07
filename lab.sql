@@ -47,5 +47,23 @@ JOIN payment p ON rsv.customer_id = p.customer_id
 GROUP BY rsv.customer_id;
 
 
+-- Use CTE to combine rental and payment summary
+WITH customer_summary_cte AS (
+    SELECT 
+        rs.customer_name,
+        rs.email,
+        rs.rental_count,
+        cps.total_paid
+    FROM rental_summary rs
+    JOIN customer_payment_summary cps ON rs.customer_id = cps.customer_id
+)
 
-select * from customer_payment2       
+-- Final report query
+SELECT 
+    customer_name,
+    email,
+    rental_count,
+    total_paid,
+    ROUND(total_paid / NULLIF(rental_count, 0), 2) AS average_payment_per_rental
+FROM customer_summary_cte
+ORDER BY total_paid DESC;
